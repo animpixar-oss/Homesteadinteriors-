@@ -24,8 +24,26 @@ const COLORS = {
   line: "#E4D9C6",
 };
 
-const img = (seed, w = 1200, h = 900) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+/* Real, freely-licensed photography (Unsplash) keyed by category.
+   Swap these for your own product photography whenever it's ready —
+   the `photo()` helper just needs a working image URL. */
+const PHOTO_IDS = {
+  kitchens: "1759239572496-4ec13e7643d6",
+  wardrobes: "1683181181112-6ba857b1d2a9",
+  doors: "1726804550899-f0e01f066031",
+  furnishings: "1757416654883-c73c67b3382b",
+  bathware: "1723984790027-ffe34efb18f6",
+  lighting: "1556545094-25635bdb8c1c",
+};
+
+const photo = (key, w = 1200, h = 900) =>
+  `https://images.unsplash.com/photo-${PHOTO_IDS[key]}?auto=format&fit=crop&w=${w}&h=${h}&q=80`;
+
+// Featured Collection background — real, freely-licensed stock footage (Pexels)
+const ATELIER_VIDEO =
+  "https://videos.pexels.com/video-files/29459385/12681247_1440_2560_60fps.mp4";
+const ATELIER_POSTER =
+  "https://images.pexels.com/videos/29459385/kanvas-designs-an-interior-design-company-29459385.jpeg?auto=compress&cs=tinysrgb&w=1600";
 
 /* ------------------------- Shared bits ------------------------- */
 
@@ -87,35 +105,49 @@ const Button = ({ children, variant = "primary", className = "", ...rest }) => {
   );
 };
 
-/* ============================= HEADER ============================= */
+// Smooth-scrolls to a section id on the page (used everywhere instead of dead "#" links)
+const scrollToId = (id) => (e) => {
+  e.preventDefault();
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
+/* ============================= HEADER ============================= */
+// Each top-level nav item now links to a real section on the page (its
+// SEO write-up further down), instead of a dead "#" href.
 const NAV = [
   {
     label: "Kitchens",
+    id: "kitchens",
     links: ["Modular Kitchens", "Island Kitchens", "L-Shaped Kitchens", "Kitchen Accessories", "Kitchen Cost Calculator"],
   },
   {
     label: "Wardrobes",
+    id: "wardrobes",
     links: ["Sliding Wardrobes", "Hinged Wardrobes", "Walk-in Closets", "Wardrobe Interiors", "Wardrobe Cost Calculator"],
   },
   {
     label: "Doors & Windows",
+    id: "doors-windows",
     links: ["Interior Doors", "Front Doors", "Windows", "Door Hardware"],
   },
   {
     label: "Furnishings",
+    id: "furnishings",
     links: ["Sofas & Seating", "Dining", "Beds", "Soft Furnishings"],
   },
   {
     label: "Bathware",
+    id: "bathware",
     links: ["Sanitaryware", "Faucets & Fittings", "Bath Furniture", "Accessories"],
   },
   {
     label: "Lighting",
+    id: "lighting",
     links: ["Ceiling Lights", "Wall Lights", "Table Lamps", "Outdoor Lighting"],
   },
-  { label: "Design Ideas", links: ["Lookbooks", "Before & After", "Trend Reports", "Design Stories"] },
-  { label: "More", links: ["About Us", "Store Locator", "Careers", "Warranty"] },
+  { label: "Design Ideas", id: "design-stories", links: ["Lookbooks", "Before & After", "Trend Reports", "Design Stories"] },
+  { label: "More", id: "visit-store", links: ["About Us", "Store Locator", "Careers", "Warranty"] },
 ];
 
 function Header({ onBook }) {
@@ -131,7 +163,7 @@ function Header({ onBook }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <a href="#top" className="flex items-center gap-2 shrink-0">
+          <a href="#top" onClick={scrollToId("top")} className="flex items-center gap-2 shrink-0">
             <span
               className="font-serif text-xl sm:text-2xl tracking-tight"
               style={{ color: COLORS.espresso }}
@@ -155,17 +187,17 @@ function Header({ onBook }) {
                 onMouseEnter={() => setOpenMenu(item.label)}
                 onMouseLeave={() => setOpenMenu(null)}
               >
-                <button
-                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors"
+                <a
+                  href={`#${item.id}`}
+                  onClick={scrollToId(item.id)}
+                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium transition-colors cursor-pointer"
                   style={{ color: COLORS.walnut }}
                 >
                   {item.label}
                   <ChevronDown size={14} />
-                </button>
+                </a>
                 {openMenu === item.label && (
-                  <div
-                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-56"
-                  >
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-56">
                     <div
                       className="rounded-sm border shadow-lg py-3"
                       style={{ backgroundColor: COLORS.paper, borderColor: COLORS.line }}
@@ -173,7 +205,8 @@ function Header({ onBook }) {
                       {item.links.map((l) => (
                         <a
                           key={l}
-                          href="#"
+                          href={`#${item.id}`}
+                          onClick={scrollToId(item.id)}
                           className="block px-5 py-2 text-sm hover:pl-6 transition-all duration-150"
                           style={{ color: COLORS.walnut }}
                         >
@@ -192,7 +225,7 @@ function Header({ onBook }) {
             <button aria-label="Search" style={{ color: COLORS.walnut }}><Search size={19} /></button>
             <a href="tel:+911234567890" aria-label="Call us" style={{ color: COLORS.walnut }}><Phone size={19} /></a>
             <button aria-label="Account" style={{ color: COLORS.walnut }}><User size={19} /></button>
-            <button aria-label="Store locator" style={{ color: COLORS.walnut }}><MapPin size={19} /></button>
+            <a href="#visit-store" onClick={scrollToId("visit-store")} aria-label="Store locator" style={{ color: COLORS.walnut }}><MapPin size={19} /></a>
             <Button variant="primary" className="ml-1 !py-2.5" onClick={onBook}>
               Book Consultation
             </Button>
@@ -233,22 +266,36 @@ function Header({ onBook }) {
             <nav className="py-2">
               {NAV.map((item) => (
                 <div key={item.label} className="border-b" style={{ borderColor: COLORS.line }}>
-                  <button
-                    className="w-full flex items-center justify-between px-5 py-4 text-left font-medium"
-                    style={{ color: COLORS.walnut }}
-                    onClick={() => setMobileSub(mobileSub === item.label ? null : item.label)}
-                  >
-                    {item.label}
-                    <ChevronDown
-                      size={16}
-                      className="transition-transform"
-                      style={{ transform: mobileSub === item.label ? "rotate(180deg)" : "none" }}
-                    />
-                  </button>
+                  <div className="w-full flex items-center justify-between px-5 py-4">
+                    <a
+                      href={`#${item.id}`}
+                      onClick={(e) => { scrollToId(item.id)(e); setMobileOpen(false); }}
+                      className="text-left font-medium"
+                      style={{ color: COLORS.walnut }}
+                    >
+                      {item.label}
+                    </a>
+                    <button
+                      aria-label={`Toggle ${item.label} submenu`}
+                      onClick={() => setMobileSub(mobileSub === item.label ? null : item.label)}
+                    >
+                      <ChevronDown
+                        size={16}
+                        className="transition-transform"
+                        style={{ transform: mobileSub === item.label ? "rotate(180deg)" : "none", color: COLORS.walnut }}
+                      />
+                    </button>
+                  </div>
                   {mobileSub === item.label && (
                     <div className="pb-3 pl-8 flex flex-col gap-1">
                       {item.links.map((l) => (
-                        <a key={l} href="#" className="py-1.5 text-sm" style={{ color: COLORS.taupe }}>
+                        <a
+                          key={l}
+                          href={`#${item.id}`}
+                          onClick={(e) => { scrollToId(item.id)(e); setMobileOpen(false); }}
+                          className="py-1.5 text-sm"
+                          style={{ color: COLORS.taupe }}
+                        >
                           {l}
                         </a>
                       ))}
@@ -272,11 +319,11 @@ function Header({ onBook }) {
 /* ============================= HERO ============================= */
 
 const HERO_SLIDES = [
-  { key: "kitchens", title: "Kitchens That Gather", tag: "Where the day begins and everyone ends up.", seed: "hs-kitchen" },
-  { key: "wardrobes", title: "Wardrobes, Reimagined", tag: "Storage that stays as tidy as the plan.", seed: "hs-wardrobe" },
-  { key: "doors", title: "Doors & Windows", tag: "The quiet detailing that frames a home.", seed: "hs-doors" },
-  { key: "furnishings", title: "Furnishings With Feeling", tag: "Pieces built to be lived in, not around.", seed: "hs-furnishing" },
-  { key: "bathware", title: "Bathware, Elevated", tag: "Everyday rituals, made a little more still.", seed: "hs-bath" },
+  { key: "kitchens", title: "Kitchens That Gather", tag: "Where the day begins and everyone ends up." },
+  { key: "wardrobes", title: "Wardrobes, Reimagined", tag: "Storage that stays as tidy as the plan." },
+  { key: "doors-windows", photoKey: "doors", title: "Doors & Windows", tag: "The quiet detailing that frames a home." },
+  { key: "furnishings", title: "Furnishings With Feeling", tag: "Pieces built to be lived in, not around." },
+  { key: "bathware", title: "Bathware, Elevated", tag: "Everyday rituals, made a little more still." },
 ];
 
 function Hero() {
@@ -298,7 +345,11 @@ function Hero() {
           className="absolute inset-0 transition-opacity duration-[1200ms]"
           style={{ opacity: active === i ? 1 : 0 }}
         >
-          <img src={img(slide.seed, 1600, 1200)} alt={slide.title} className="w-full h-full object-cover" />
+          <img
+            src={photo(slide.photoKey || slide.key, 1600, 1200)}
+            alt={slide.title}
+            className="w-full h-full object-cover"
+          />
           <div
             className="absolute inset-0"
             style={{ background: "linear-gradient(0deg, rgba(20,14,8,0.55) 0%, rgba(20,14,8,0.15) 45%, rgba(20,14,8,0.35) 100%)" }}
@@ -310,9 +361,11 @@ function Hero() {
                 {slide.title}
               </h1>
               <p className="mt-4 text-base sm:text-lg" style={{ color: "#EBE2D2" }}>{slide.tag}</p>
-              <Button variant="outline" className="mt-7">
-                Explore <ArrowRight size={16} />
-              </Button>
+              <a href={`#${slide.key}`} onClick={scrollToId(slide.key)}>
+                <Button variant="outline" className="mt-7">
+                  Explore <ArrowRight size={16} />
+                </Button>
+              </a>
             </div>
           </div>
         </div>
@@ -382,7 +435,7 @@ function LeadForm() {
   };
 
   return (
-    <section className="w-full py-16 sm:py-24" style={{ backgroundColor: COLORS.espresso }}>
+    <section id="get-started" className="w-full py-16 sm:py-24" style={{ backgroundColor: COLORS.espresso }}>
       <div className="mx-auto max-w-5xl px-6">
         <SectionHeading
           dark
@@ -510,11 +563,11 @@ function Field({ label, error, children }) {
 /* ======================== CATEGORY GRID ======================== */
 
 const CATEGORIES = [
-  { name: "Kitchens", seed: "cat-kitchen" },
-  { name: "Wardrobes", seed: "cat-wardrobe" },
-  { name: "Furnishings", seed: "cat-furnishing" },
-  { name: "Doors & Windows", seed: "cat-doors" },
-  { name: "Bathware", seed: "cat-bath" },
+  { name: "Kitchens", id: "kitchens" },
+  { name: "Wardrobes", id: "wardrobes" },
+  { name: "Furnishings", id: "furnishings" },
+  { name: "Doors & Windows", id: "doors-windows", photoKey: "doors" },
+  { name: "Bathware", id: "bathware" },
 ];
 
 function CategoryGrid() {
@@ -526,11 +579,12 @@ function CategoryGrid() {
           {CATEGORIES.map((c, i) => (
             <a
               key={c.name}
-              href="#"
+              href={`#${c.id}`}
+              onClick={scrollToId(c.id)}
               className={`group relative overflow-hidden rounded-sm h-72 sm:h-96 ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}
             >
               <img
-                src={img(c.seed, 700, 900)}
+                src={photo(c.photoKey || c.id, 700, 900)}
                 alt={c.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -566,14 +620,30 @@ const VALUE_PROPS = [
 
 function FeaturedCollection() {
   const [active, setActive] = useState(0);
+  const videoRef = useRef(null);
+
   useEffect(() => {
     const t = setInterval(() => setActive((a) => (a + 1) % VALUE_PROPS.length), 4000);
     return () => clearInterval(t);
   }, []);
 
+  useEffect(() => {
+    // Autoplay is best-effort — browsers may block it until user interaction.
+    videoRef.current?.play?.().catch(() => {});
+  }, []);
+
   return (
     <section className="relative w-full h-[80vh] min-h-[520px] overflow-hidden">
-      <img src={img("atelier-collection", 1600, 1100)} alt="Atelier collection" className="absolute inset-0 w-full h-full object-cover" />
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        src={ATELIER_VIDEO}
+        poster={ATELIER_POSTER}
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
       <div className="absolute inset-0" style={{ background: "linear-gradient(90deg, rgba(20,14,8,0.75) 0%, rgba(20,14,8,0.25) 60%, rgba(20,14,8,0.1) 100%)" }} />
 
       <div className="relative h-full flex flex-col justify-center px-6 sm:px-12 lg:px-20 max-w-xl">
@@ -602,7 +672,9 @@ function FeaturedCollection() {
           ))}
         </div>
 
-        <Button variant="outline" className="mt-9 w-fit">View Collection <ArrowRight size={16} /></Button>
+        <a href="#get-started" onClick={scrollToId("get-started")}>
+          <Button variant="outline" className="mt-9 w-fit">View Collection <ArrowRight size={16} /></Button>
+        </a>
       </div>
     </section>
   );
@@ -611,11 +683,11 @@ function FeaturedCollection() {
 /* ============================ TOOLS STRIP ============================ */
 
 const TOOLS = [
-  { title: "Home Budget Calculator", cta: "Calculate now", seed: "tool-budget" },
-  { title: "Kitchen Cost Calculator", cta: "Calculate now", seed: "tool-kitchen" },
-  { title: "Wardrobe Cost Calculator", cta: "Calculate now", seed: "tool-wardrobe" },
-  { title: "Style Configurator", cta: "Get started", seed: "tool-style" },
-  { title: "Find Your Design Style — Quiz", cta: "Get started", seed: "tool-quiz" },
+  { title: "Home Budget Calculator", cta: "Calculate now", photoKey: "furnishings" },
+  { title: "Kitchen Cost Calculator", cta: "Calculate now", photoKey: "kitchens" },
+  { title: "Wardrobe Cost Calculator", cta: "Calculate now", photoKey: "wardrobes" },
+  { title: "Style Configurator", cta: "Get started", photoKey: "lighting" },
+  { title: "Find Your Design Style — Quiz", cta: "Get started", photoKey: "bathware" },
 ];
 
 function ToolsStrip() {
@@ -631,12 +703,13 @@ function ToolsStrip() {
           {TOOLS.map((t) => (
             <a
               key={t.title}
-              href="#"
+              href="#get-started"
+              onClick={scrollToId("get-started")}
               className="group shrink-0 w-64 sm:w-72 snap-start rounded-sm overflow-hidden border"
               style={{ backgroundColor: COLORS.paper, borderColor: COLORS.line }}
             >
               <div className="h-40 overflow-hidden">
-                <img src={img(t.seed, 500, 350)} alt={t.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={photo(t.photoKey, 500, 350)} alt={t.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <div className="p-5">
                 <h3 className="font-serif text-lg" style={{ color: COLORS.espresso }}>{t.title}</h3>
@@ -655,36 +728,41 @@ function ToolsStrip() {
 /* ============================ BLOG CAROUSEL ============================ */
 
 const BLOG_POSTS = [
-  { title: "Small Kitchen, Big Ideas: 8 Layouts That Work", date: "12 Jul 2026", seed: "blog-1" },
-  { title: "The Case for a Walk-in Wardrobe, Even in a Small Home", date: "03 Jul 2026", seed: "blog-2" },
-  { title: "Choosing Door Hardware That Ages Well", date: "26 Jun 2026", seed: "blog-3" },
-  { title: "Warm Minimalism: A Bathware Edit", date: "18 Jun 2026", seed: "blog-4" },
-  { title: "Layered Lighting, Explained Room by Room", date: "09 Jun 2026", seed: "blog-5" },
+  { title: "Small Kitchen, Big Ideas: 8 Layouts That Work", date: "12 Jul 2026", photoKey: "kitchens" },
+  { title: "The Case for a Walk-in Wardrobe, Even in a Small Home", date: "03 Jul 2026", photoKey: "wardrobes" },
+  { title: "Choosing Door Hardware That Ages Well", date: "26 Jun 2026", photoKey: "doors" },
+  { title: "Warm Minimalism: A Bathware Edit", date: "18 Jun 2026", photoKey: "bathware" },
+  { title: "Layered Lighting, Explained Room by Room", date: "09 Jun 2026", photoKey: "lighting" },
 ];
 
 function BlogCarousel() {
   return (
-    <section className="w-full py-16 sm:py-24" style={{ backgroundColor: COLORS.cream }}>
+    <section id="design-stories" className="w-full py-16 sm:py-24" style={{ backgroundColor: COLORS.cream }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex items-end justify-between flex-wrap gap-3">
           <SectionHeading eyebrow="From the journal" title="Design stories" />
-          <a href="#" className="text-sm font-semibold flex items-center gap-1" style={{ color: COLORS.clay }}>
+          <span className="text-sm font-semibold flex items-center gap-1" style={{ color: COLORS.clay }}>
             View all <ArrowRight size={14} />
-          </a>
+          </span>
         </div>
 
         <div className="mt-10 flex gap-6 overflow-x-auto pb-4 -mx-6 px-6 snap-x scroll-smooth">
           {BLOG_POSTS.map((p) => (
-            <a key={p.title} href="#" className="group shrink-0 w-72 sm:w-80 snap-start">
+            <div key={p.title} className="group shrink-0 w-72 sm:w-80 snap-start">
               <div className="h-52 overflow-hidden rounded-sm">
-                <img src={img(p.seed, 600, 420)} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={photo(p.photoKey, 600, 420)} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
               </div>
               <p className="mt-4 text-xs uppercase tracking-wide" style={{ color: COLORS.taupe }}>{p.date}</p>
               <h3 className="mt-1 font-serif text-lg leading-snug" style={{ color: COLORS.espresso }}>{p.title}</h3>
-              <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold tracking-wide" style={{ color: COLORS.clay }}>
+              <a
+                href={`#${p.photoKey === "kitchens" ? "kitchens" : p.photoKey === "wardrobes" ? "wardrobes" : p.photoKey === "doors" ? "doors-windows" : p.photoKey === "bathware" ? "bathware" : "lighting"}`}
+                onClick={scrollToId(p.photoKey === "kitchens" ? "kitchens" : p.photoKey === "wardrobes" ? "wardrobes" : p.photoKey === "doors" ? "doors-windows" : p.photoKey === "bathware" ? "bathware" : "lighting")}
+                className="mt-2 inline-flex items-center gap-1 text-xs font-bold tracking-wide"
+                style={{ color: COLORS.clay }}
+              >
                 READ <ArrowRight size={12} />
-              </span>
-            </a>
+              </a>
+            </div>
           ))}
         </div>
       </div>
@@ -694,10 +772,10 @@ function BlogCarousel() {
 
 /* ============================ STORE CTA BAND ============================ */
 
-function StoreCTA() {
+function StoreCTA({ onBook }) {
   return (
-    <section className="relative w-full py-20 sm:py-28 overflow-hidden" style={{ backgroundColor: COLORS.walnut }}>
-      <img src={img("store-band", 1600, 500)} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />
+    <section id="visit-store" className="relative w-full py-20 sm:py-28 overflow-hidden" style={{ backgroundColor: COLORS.walnut }}>
+      <img src={photo("furnishings", 1600, 500)} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />
       <div className="relative mx-auto max-w-3xl px-6 text-center">
         <Eyebrow dark>Visit us</Eyebrow>
         <h2 className="font-serif text-3xl sm:text-4xl" style={{ color: COLORS.paper }}>Discover in store</h2>
@@ -705,8 +783,14 @@ function StoreCTA() {
           Touch the finishes, sit in the seating, and talk through your space with a designer at your nearest Homestead studio.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button variant="outline"><MapPin size={16} /> Find a Store</Button>
-          <Button variant="primary">Book Consultation</Button>
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=Homestead+Interiors+store"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline"><MapPin size={16} /> Find a Store</Button>
+          </a>
+          <Button variant="primary" onClick={onBook}>Book Consultation</Button>
         </div>
       </div>
     </section>
@@ -717,6 +801,7 @@ function StoreCTA() {
 
 const SEO_SECTIONS = [
   {
+    id: "kitchens",
     h: "Kitchens",
     p: [
       "The kitchen has quietly become the room a home is planned around — not just where meals happen, but where the day starts and, more often than not, where everyone ends up by evening. A well-planned kitchen makes room for both.",
@@ -724,6 +809,7 @@ const SEO_SECTIONS = [
     ],
   },
   {
+    id: "wardrobes",
     h: "Wardrobes",
     p: [
       "A wardrobe is a small piece of architecture — it should hold everything you own without asking you to think about it. We design ours around your actual wardrobe, not an imagined one, with sliding and hinged options to suit rooms of every size.",
@@ -731,6 +817,7 @@ const SEO_SECTIONS = [
     ],
   },
   {
+    id: "doors-windows",
     h: "Doors & Windows",
     p: [
       "Doors and windows are the details most homes overlook, yet they set the tone the moment someone steps in. A front door with the right weight and finish makes an entrance feel considered; interior doors that close quietly make a home feel calm.",
@@ -738,6 +825,7 @@ const SEO_SECTIONS = [
     ],
   },
   {
+    id: "furnishings",
     h: "Furnishings",
     p: [
       "Furnishings are where a house starts to feel like your house. A sofa that fits the way your family actually sits together, a dining table sized for the room rather than the showroom — these choices carry more weight than they're given credit for.",
@@ -745,6 +833,7 @@ const SEO_SECTIONS = [
     ],
   },
   {
+    id: "bathware",
     h: "Bathware",
     p: [
       "The bathroom is the smallest room with the biggest daily impact — a few quiet minutes that can either rush you out the door or ease you into it. Good bathware makes that difference without ever calling attention to itself.",
@@ -752,6 +841,7 @@ const SEO_SECTIONS = [
     ],
   },
   {
+    id: "lighting",
     h: "Lighting",
     p: [
       "Lighting shapes a room more than almost any other choice — the same space can feel stark or serene depending on how it's lit. Layering ceiling, wall, and task lighting lets every room shift with the time of day.",
@@ -775,7 +865,7 @@ function SEOContent() {
         </p>
 
         {SEO_SECTIONS.map((s) => (
-          <div key={s.h} className="mb-9">
+          <div key={s.h} id={s.id} className="mb-9 scroll-mt-24">
             <h3 className="font-serif text-2xl mb-3" style={{ color: COLORS.clayDark }}>{s.h}</h3>
             {s.p.map((para, i) => (
               <p key={i} className="text-[15px] leading-relaxed mb-3" style={{ color: COLORS.taupe }}>{para}</p>
@@ -1057,16 +1147,29 @@ function Footer() {
               </div>
             </div>
             <div className="flex gap-4 mt-6 text-sm" style={{ color: "#B7AB98" }}>
-              <a href="#">Instagram</a><a href="#">Pinterest</a><a href="#">Facebook</a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+              <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer">Pinterest</a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
             </div>
           </div>
 
           {NAV.slice(0, 5).map((col) => (
             <div key={col.label}>
-              <h4 className="text-sm font-semibold mb-3" style={{ color: COLORS.paper }}>{col.label}</h4>
+              <a
+                href={`#${col.id}`}
+                onClick={scrollToId(col.id)}
+                className="text-sm font-semibold mb-3 block"
+                style={{ color: COLORS.paper }}
+              >
+                {col.label}
+              </a>
               <ul className="space-y-2">
                 {col.links.slice(0, 4).map((l) => (
-                  <li key={l}><a href="#" className="text-sm" style={{ color: "#B7AB98" }}>{l}</a></li>
+                  <li key={l}>
+                    <a href={`#${col.id}`} onClick={scrollToId(col.id)} className="text-sm" style={{ color: "#B7AB98" }}>
+                      {l}
+                    </a>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -1095,6 +1198,7 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
         .font-serif { font-family: 'Fraunces', serif; }
+        html { scroll-behavior: smooth; }
         body { margin: 0; }
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: ${COLORS.line}; border-radius: 4px; }
@@ -1107,7 +1211,7 @@ export default function App() {
       <FeaturedCollection />
       <ToolsStrip />
       <BlogCarousel />
-      <StoreCTA />
+      <StoreCTA onBook={() => setModalOpen(true)} />
       <SEOContent />
       <Footer />
 
